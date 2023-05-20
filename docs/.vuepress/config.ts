@@ -4,6 +4,7 @@ import { copyCodePlugin } from 'vuepress-plugin-copy-code2'
 import { commentPlugin } from 'vuepress-plugin-comment2'
 import { docsearchPlugin } from '@vuepress/plugin-docsearch'
 
+
 export default defineUserConfig({
     head: [
         ['link', { rel: 'icon', href: '/studyLib/assets/icon.jpeg' }],
@@ -40,13 +41,18 @@ export default defineUserConfig({
             },
             {
                 text: '算法',
-                link: '/algorithm'
+                link: '/algorithm/',
             },
         ],
         sidebar: { // 配置侧边栏部分
             "/algorithm/": [
-                '',
-            ],
+                {
+                    text: '引导',
+                    link: '/algorithm/index.md',
+                },
+                '/algorithm/LinkList.md',
+                '/algorithm/BinaryTree.md'
+            ]
         },
     }),
     plugins: [
@@ -86,7 +92,33 @@ export default defineUserConfig({
             container: true,
             tabs: true,
             codetabs: true,
-            tasklist: true
+            tasklist: true,
+            demo: true,
+            playground: {
+                // 添加预设
+                presets: [
+                  "ts",
+                  "vue",
+                  {
+                    name: "playground#language",
+                    component: "PlaygroundComponent",
+                    propsGetter: (
+                      playgroundData,
+                    ): Record<string, string> => ({
+                      // 交互演示属性
+                    }),
+                  },
+                ],
+                // 设置内置预设 (可选)
+                config: {
+                  ts: {
+                    // ...
+                  },
+                  vue: {
+                    // ...
+                  },
+                },
+            }
         }),
         commentPlugin({
             provider: 'Giscus',
