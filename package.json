@@ -9,7 +9,7 @@
     "deploy": "./deploy.sh"
   },
   "keywords": [],
-  "author": "",
+  "author": "FlyCat",
   "license": "ISC",
   "devDependencies": {
     "@vuepress/client": "2.0.0-beta.62",

@@ -89,11 +89,11 @@ export default defineUserConfig({
             tasklist: true
         }),
         commentPlugin({
-            provider: 'Artalk',
-            repo: '',
-            repoId: '',
+            provider: 'Giscus',
+            repo: 'FiggerDancer/studyLib',
+            repoId: 'R_kgDOJlRgAw',
             category: 'General',
-            categoryId: '',
+            categoryId: 'DIC_kwDOJlRgA84CWngm',
             mapping: 'pathname'
         })
     ],
