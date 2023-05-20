@@ -5,7 +5,6 @@ import { commentPlugin } from 'vuepress-plugin-comment2'
 import { docsearchPlugin } from '@vuepress/plugin-docsearch'
 
 export default defineUserConfig({
-    dest: 'docs/dist/html',
     head: [
         ['link', { rel: 'icon', href: '/studyLib/assets/icon.jpeg' }],
     ],
