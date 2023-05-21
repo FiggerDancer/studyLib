@@ -51,7 +51,8 @@ export default defineUserConfig({
                     link: '/algorithm/index.md',
                 },
                 '/algorithm/LinkList.md',
-                '/algorithm/BinaryTree.md'
+                '/algorithm/BinaryTree.md',
+                '/algorithm/Graph.md',
             ]
         },
     }),
@@ -92,8 +93,29 @@ export default defineUserConfig({
             container: true,
             tabs: true,
             codetabs: true,
+            sub: true,
+            // 脚标
+            footnote: true,
+            // 标记
+            mark: true,
+            // 启用 figure
+            figure: true,
+            // 启用图片懒加载
+            imgLazyload: true,
+            // 启用图片标记
+            imgMark: true,
+            // 启用图片大小
+            imgSize: true,
+            // 启用 mermaid
+            mermaid: true,
+            // 使用 KaTeX 启用 TeX 支持
+            katex: true,
+            // 使用 mathjax 启用 TeX 支持
+            mathjax: true,
             tasklist: true,
             demo: true,
+            // 启用 vue 交互演示
+            vuePlayground: true,
             playground: {
                 // 添加预设
                 presets: [
@@ -118,7 +140,9 @@ export default defineUserConfig({
                     // ...
                   },
                 },
-            }
+            },
+            // 启用幻灯片
+            presentation: true,
         }),
         commentPlugin({
             provider: 'Giscus',
