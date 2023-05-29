@@ -263,4 +263,140 @@ function sortedTopology(graph) {
 
 :::
 
-###
+### kruskal 算法 （要求无向图）
+
+最小生成树
+
+以边的角度出发，依次选择最小的边
+
+加上后会形成环，就不要了
+
+实现某种机制，能让集合快速合并和查询
+
+因为每次可能带进来多个点
+
+```js
+// 模拟并查集（其实不是，并查集的接口都是常数级的）
+class MySets {
+    constructor(nodes) {
+        this.setMap = new Map()
+        this.nodes.forEach((node) => {
+            const set = []
+            set.push(node)
+            setMap.set(node, list)
+        })
+    }
+
+    isSameSet(from, to) {
+        const fromSet = this.setMap.get(from)
+        const toSet = this.setMap.get(to)
+        return (fromSet === toSet)
+    }
+    
+    union(from, to) {
+        const fromSet = this.setMap.get(from)
+        const toSet = this.setMap.get(to)
+        const unionSet = [...fromSet, ...toSet]
+        unionSet.forEach((union) => {
+            this.setMap.set(union, unionSet)
+        })
+    }
+}
+
+function kruskalMST(graph) {
+    const unionFind = new MySets(graph.nodes)
+    const queue = edges.slice().sort((a, b) => {
+        a.weight - b.weight
+    })
+    const result = new Set()
+    while (queue.length) {
+        const edge = queue.shift()
+        if (!unionFind.isSameSet(edge.from, edge.to)) {
+            result.add(edge)
+            unionFind.union(edge.from, edge.to)
+        }
+    }
+    return result
+}
+```
+
+### prim 算法 （要求无向图）
+
+最小生成树
+
+随便选择一个点开始，选一条最小边连接的点d
+
+加上后会形成环，就不要了
+
+每次只会带进来一个点
+
+```js
+function primMST(graph) {
+    const st = new Set()
+    const result = new Set()
+    const priorityQueue = new PriorityQueue((a, b) => a.weight - b.weight)
+    // 这个for循环是考虑森林的情况
+    graph.nodes.forEach((node) => {
+        node.edges.forEach((edge) => {
+            priorityQueue.add(edge)
+        })
+        while (!priorityQueue.isEmpty()) {
+            const edge = priorityQueue.poll()
+            const toNode = edge.to
+            if (!st.has(toNode)) {
+                st.add(toNode)
+                result.add(edge)
+                toNodes.edges.forEach((nextEdge) => {
+                    priorityQueue.add(nextEdge)
+                })
+            }
+        }
+    })
+    
+    return result
+}
+
+```
+
+### Dijkstra 迪杰斯特拉 （环的累加和权值不能为负数）
+
+单元最短路径算法
+
+```js
+function dijkstra(head) {
+    // 从head到达T这个点的距离
+    // key:从head出发到key
+    // value: 从head出发到达key的最小距离
+    // 如果表中无记录，则含义是从head出发到T这个点的距离为正无穷
+    const distanceMap = new Map()
+    distanceMap.set(head, 0)
+    // 已经求过的点，以后再也不碰
+    const selectedNodes = new Set()
+    const minNode = getMinDistanceAndUnselectedNode(distanceMap, selectedNodes)
+    while (!minNode) {
+        const distance = distanceMap.get(minNode)
+        minNode.edges.forEach((edge) => {
+            const toNode = edge.to
+            if (!distanceMap.has(toNode)) {
+                distanceMap.set(toNode, distance + edge.weight)
+            }
+            distanceMap.set(edge.to, Math.min(distanceMap.get(toNode), distance + edge.weight))
+        })
+        selectedNodes.add(minNode)
+        minNode = getMinDistanceAndUnselectedNode(distanceMap, selectedNodes)
+    }
+    return distanceMap;
+}
+
+function getMinDistanceAndUnselectedNode(distanceMap, selectedNodes) {
+    let minDistance = Number.MAX_SAFE_INTEGER
+    let minNode
+    for (const [node, distance] of distanceMap.entries()) {
+        if (!selectedNodes.has(node) && distance < minDistance) {
+            minNode = node
+            minDistance = distance
+        }
+    }
+    return minNode
+}
+```
