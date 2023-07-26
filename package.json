@@ -14,6 +14,7 @@
   "devDependencies": {
     "@vuepress/client": "2.0.0-beta.62",
     "@vuepress/plugin-docsearch": "2.0.0-beta.62",
+    "glob": "^10.3.3",
     "vue": "^3.3.4",
     "vuepress": "2.0.0-beta.62",
     "vuepress-plugin-comment2": "2.0.0-beta.211",

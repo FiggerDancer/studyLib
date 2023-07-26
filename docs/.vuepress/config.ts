@@ -3,7 +3,18 @@ import { mdEnhancePlugin } from "vuepress-plugin-md-enhance"
 import { copyCodePlugin } from 'vuepress-plugin-copy-code2'
 import { commentPlugin } from 'vuepress-plugin-comment2'
 import { docsearchPlugin } from '@vuepress/plugin-docsearch'
+import { globSync } from 'glob'
 
+const getAlgorithmMd = () => {
+    const dirName = 'algorithm'
+    const pathList = globSync(`**/${dirName}/**.md`).map((filePath) => {
+        const begin = filePath.indexOf(dirName)
+        return filePath.slice(begin - 1).replaceAll('\\', '/')
+    })
+    return pathList.reverse();
+}
+
+const AlgorithmMds = getAlgorithmMd()
 
 export default defineUserConfig({
     head: [
@@ -41,19 +52,11 @@ export default defineUserConfig({
             },
             {
                 text: '算法',
-                link: '/algorithm/',
+                link: AlgorithmMds[0],
             },
         ],
         sidebar: { // 配置侧边栏部分
-            "/algorithm/": [
-                {
-                    text: '引导',
-                    link: '/algorithm/index.md',
-                },
-                '/algorithm/LinkList.md',
-                '/algorithm/BinaryTree.md',
-                '/algorithm/Graph.md',
-            ]
+            "/algorithm/": AlgorithmMds
         },
     }),
     plugins: [

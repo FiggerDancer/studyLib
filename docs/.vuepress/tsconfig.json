@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "lib": [
+            "ESNext",
+            "DOM.Iterable",
+            "ScriptHost",
+            "DOM",
+            "ES5"
+        ], // 导入库类型定义
+    },
+    "exclude": [
+        
+    ]
+}
