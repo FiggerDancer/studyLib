@@ -1,5 +1,6 @@
 import { defaultTheme, defineUserConfig } from 'vuepress'
 import { mdEnhancePlugin } from "vuepress-plugin-md-enhance"
+import { searchPlugin } from '@vuepress/plugin-search'
 import { copyCodePlugin } from 'vuepress-plugin-copy-code2'
 import { commentPlugin } from 'vuepress-plugin-comment2'
 import { docsearchPlugin } from '@vuepress/plugin-docsearch'
@@ -61,11 +62,32 @@ export default defineUserConfig({
         },
     }),
     plugins: [
-        docsearchPlugin({
-            // 配置项
-            appId: '<APP_ID>',
-            apiKey: '<API_KEY>',
-            indexName: '<INDEX_NAME>',
+        // docsearchPlugin({
+        //     // 配置项
+        //     appId: '<APP_ID>',
+        //     apiKey: '<API_KEY>',
+        //     indexName: '<INDEX_NAME>',
+        //     locales: {
+        //         '/': {
+        //         placeholder: 'Search Documentation',
+        //         translations: {
+        //             button: {
+        //             buttonText: 'Search Documentation',
+        //             },
+        //         },
+        //         },
+        //         '/zh/': {
+        //         placeholder: '搜索文档',
+        //         translations: {
+        //             button: {
+        //             buttonText: '搜索文档',
+        //             },
+        //         },
+        //         },
+        //     },
+        // }),
+        searchPlugin({
+            // options
             locales: {
                 '/': {
                 placeholder: 'Search Documentation',
