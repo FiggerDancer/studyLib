@@ -6,8 +6,7 @@ import { commentPlugin } from 'vuepress-plugin-comment2'
 // import { docsearchPlugin } from '@vuepress/plugin-docsearch'
 import { globSync } from 'glob'
 
-const getAlgorithmMd = () => {
-    const dirName = 'algorithm'
+const getDirMds = (dirName: string) => {
     const pathList = globSync(`**/${dirName}/**.md`).map((filePath) => {
         const begin = filePath.indexOf(dirName)
         return filePath.slice(begin - 1).replaceAll('\\', '/')
@@ -15,7 +14,9 @@ const getAlgorithmMd = () => {
     return pathList.reverse();
 }
 
-const AlgorithmMds = getAlgorithmMd()
+const AlgorithmMds = getDirMds('algorithm')
+const LeetCodeMds = getDirMds('LeetCode')
+console.log(AlgorithmMds, LeetCodeMds)
 
 export default defineUserConfig({
     head: [
@@ -56,9 +57,14 @@ export default defineUserConfig({
                 text: '算法',
                 link: AlgorithmMds[0],
             },
+            {
+                text: 'LeetCode',
+                link: LeetCodeMds[0],
+            }
         ],
         sidebar: { // 配置侧边栏部分
-            "/algorithm/": AlgorithmMds
+            "/algorithm/": AlgorithmMds,
+            '/LeetCode/': LeetCodeMds
         },
     }),
     plugins: [
