@@ -1,0 +1,35 @@
+<script>
+    function TreeNode(val, left = null, right = null) {
+        return {
+            val,
+            left,
+            right
+        }
+    }
+
+    function __buildTree(preOrder, inOrder, preOrderLeft, preOrderRight, inOrderLeft, inOrderRight, indexMap) {
+        if (preOrderLeft > preOrderRight) {
+            return null
+        }
+        // 前序遍历第一个节点为根节点
+        const preOrderRoot = preOrderLeft
+        // 找中序遍历根节点
+        const inOrderRoot = indexMap.get(preOrder[preOrderRoot])
+        const root = new TreeNode(preOrder[preOrderRoot])
+        const leftSize = inOrderRoot - inOrderLeft
+        root.left = __buildTree(preOrder, inOrder, preOrderLeft + 1, preOrderLeft + leftSize, inOrderLeft, inOrderRoot - 1, indexMap)
+        root.right = __buildTree(preOrder, inOrder, preOrderLeft + leftSize + 1, preOrderRight, inOrderRoot + 1, inOrderRight, indexMap)
+        return root
+    }
+
+    function buildTree(preOrder, inOrder) {
+        const n = preOrder.length
+        const indexMap = new Map()
+        inOrder.forEach((val, index) => {
+            indexMap.set(val, index)
+        })
+        return __buildTree(preOrder, inOrder, 0, n - 1, 0, n - 1, indexMap)
+    }
+
+    console.log(buildTree([3, 9, 20, 15, 7], [9, 3, 15, 20, 7]))
+</script>
