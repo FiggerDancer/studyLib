@@ -16,7 +16,6 @@ const getDirMds = (dirName: string) => {
 
 const AlgorithmMds = getDirMds('algorithm')
 const LeetCodeMds = getDirMds('LeetCode')
-console.log(AlgorithmMds, LeetCodeMds)
 
 export default defineUserConfig({
     head: [
