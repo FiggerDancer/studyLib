@@ -1,6 +1,4 @@
-# 树
-
-## 前缀树
+# 前缀树
 
 ```js
 class TrieNode {

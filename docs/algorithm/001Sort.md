@@ -518,7 +518,7 @@ const heapSort = (arr) => {
 
 #### 应用
 
-##### 问题
+##### 问题1
 
 问题：已知一个几乎有序的数组，里面的元素移动距离不超过k  
 时间复杂度： O(N * logK)  
@@ -526,8 +526,8 @@ const heapSort = (arr) => {
 思想： 放k+1个数是因为数组中最小的数，最多就是跑到k位置上，不可能再往后排了，所以我们可以直接从这里面取出最小的数，直接就可以放到数组的第一位  
 
 ```js
-const sort = (arr, k) {
-  const heap = new PriQueue() // 小根堆
+const sort = (arr, k) => {
+  const heap = new PriorityQueue() // 小根堆
   const min = Math.min(arr.length - 1, k)
   // 先加k+1个数
   for (let i = 0; i <= min; i++) {
@@ -543,6 +543,52 @@ const sort = (arr, k) {
   while (!heap.isEmpty()) {
     arr[i++] = heap.poll()
   }
+}
+```
+
+##### 问题2
+
+一个数据流中，随时可以取得中位数
+
+###### 思路
+
+1. cur >= 大根堆堆顶
+2. 是入大根堆，否入小根堆
+3. 看大小，size较大且到达2，size较小，大的堆弹出进小的堆
+
+```js
+function getPos(arr) {
+  const pQ = new PriorityQueue()
+  const maxPQ = new PriorityQueue((a, b) => b - a)
+  for (let i = 0; i < arr.length; i++) {
+    const cur = arr[i]
+    const top = maxPQ.front()
+    if (cur >= top) {
+      maxPQ.add(cur)
+      const size = maxPQ.size()
+      const minSize = pQ.size()
+      if (size - minSize >= 2) {
+        pQ.add(maxPQ.poll())
+      }
+    } else {
+      pQ.add(cur)
+      const size = maxPQ.size()
+      const minSize = pQ.size()
+      if (minSize - size >= 2) {
+        maxPQ.add(pQ.poll())
+      }
+    }
+  }
+  const top = maxPQ.front()
+  const minTop = pQ.front()
+  const size = maxPQ.size()
+  const minSize = pQ.size()
+  if (size === minSize) {
+    return (top + minTop) / 2
+  } else if (size > minSize) {
+    return top
+  }
+  return minTop
 }
 ```
 
