@@ -6,6 +6,19 @@
 
 每个节点都会走3遍
 
+```js
+function process(node) {
+    if (node == null) {
+        return 
+    }
+    // 1 先序
+    process(node.left)
+    // 2 中序
+    process(node.right)
+    // 3 后序
+}
+```
+
 ### 先序遍历 (深度遍历)
 
 先序先打印头节点=>左子树所有节点=>右子树所有节点  
@@ -648,3 +661,357 @@ function print(n, i = 1, down = true) {
 ```
 
 :::
+
+## 树形dp套路
+
+树形dp套路  
+树形dp套路使用前提：如果题目求解目标是S规则，则求解流程可以定成以每一个节点为头节点的子树在s规则下的每一个答案，并且最终答案一定在其中  
+
+### 二叉树节点最大距离问题
+
+从二叉树的节点a出发，可以向上或者向下走，但沿途的节点只能经过一次，到达节点b时路径上的节点个数叫作a到b的距离，那么二叉树任何两个节点之间都有距离，求整棵树上的最大距离。
+
+最大距离（整）
+
+1. 头不参与  
+    左最大距离-  
+    右最大距离-max  
+2. 头参与  
+    左高+1+右高-  
+
+```ts
+type TreeNode = {
+    left?: TreeNode
+    right?: TreeNode
+    value: number
+}
+
+function process(node?: TreeNode): {maxDistance: number;height: number;}{
+    if (!node) {
+        return {
+            maxDistance: 0,
+            height: 0,
+        }
+    }
+    const leftInfo = process(node.left)
+    const rightInfo = process(node.right)
+    const p1 = leftInfo.maxDistance
+    const p2 = rightInfo.maxDistance
+    const p3 = leftInfo.height + 1 + rightInfo.height
+    const maxDistance = Math.max(p3, p2, p1)
+    const height = Math.max(leftInfo.height, rightInfo.height) + 1
+    return {
+        maxDistance,
+        height,
+    }
+}
+```
+
+### 最大快乐值问题
+
+1. X参与  
+    X乐+a整棵树a不来的最大快乐值+b整颗树b不来max+c整颗树c不来  
+2. X 不参与  
+    max(a整棵树{a来，a不来})+max(b整颗树{b来，b不来})  
+
+```ts
+type Employee = {
+    happy: number
+    nexts: Record<string, Employee>
+}
+
+function process(x: Employee) {
+    if (Object.keys(x.nexts).length == 0) {
+        return {
+            lai: x.happy,
+            bu: 0,
+        }
+    }
+    let lai = x.happy
+    let bu = 0
+    Object.keys(x.nexts).forEach((key) => {
+        const next = x.nexts[key]
+        const nextInfo = process(next)
+        lai += nextInfo.bu
+        bu += Math.max(nextInfo.lai, nextInfo.bu)
+    })
+    return {
+        lai, 
+        bu,
+    }
+}
+
+function maxHappy(boss: Employee) {
+    const headInfo = process(boss)
+    return Math.max(headInfo.lai, headInfo.bu)
+}
+```
+
+## Morris 遍历 (线索二叉树)
+
+一种遍历二叉树的方式，并且时间复杂度O(N)，额外空间复杂度O(1)  
+通过利用原树种大量空闲指针的方式，达到节省空间的目的  
+
+### Morris遍历细节
+
+假设来到当前节点cur，开始时cur来到头节点位置  
+
+1. 如果cur没有左孩子，cur向右移动(cur = cur.right)  
+2. 如果cur有左孩子，找到左子树上最右的节点mostRight:  
+    a.如果mostRight的右指针指向空，让其指向cur，然后cur向左移动(cur = cur.left)  
+    b.如果mostRight的右指针指向cur，让其指向null，然后cur向右移动(cur = cur.right)  
+3. cur为空时遍历停止  
+
+### Morris遍历实现
+
+```ts
+type TreeNode = {
+    left?: TreeNode
+    right?: TreeNode
+    value: number
+}
+
+type Options = {
+    pre?: (node: TreeNode) => void
+    inOrder?: (node: TreeNode) => void
+    pos?: (node: TreeNode) => void
+}
+
+function linkListReverse(node?: TreeNode) {
+    let pre: TreeNode|undefined = void 0
+    let next: TreeNode|undefined = void 0
+    while (node) {
+        next = node.right
+        node.right = pre
+        pre = node
+        node = next
+    }
+    return pre 
+}
+
+function morris(head: TreeNode, options?: Options) {
+    if (!head) {
+        return
+    }
+    const {
+        pre,
+        inOrder,
+        pos,
+    } = Object.assign({}, options)
+    let cur: TreeNode|undefined = head
+    let mostRight = null
+    while (cur) {
+        mostRight = cur.left // mostRight是cur左孩子
+        if (mostRight) {
+            
+            while (mostRight.right && mostRight.right !== cur) {
+                mostRight = mostRight.right
+            }
+            // mostRight变成cur最右节点
+            if (!mostRight.right) {
+                // 第一次来到cur
+                pre && pre(cur)
+                mostRight.right = cur
+                cur = cur.left
+                continue;
+            } else {
+                // 第二次来到cur，只有有左子树才会来第二次
+                // mostRight.right === cur
+                inOrder && inOrder(cur)
+                mostRight.right = void 0
+                if (pos) {
+                    // 后序遍历
+                    // 第二次来到cur时，逆序左子树的右边界
+                    let root = linkListReverse(cur.left)
+                    while (root) {
+                        pos(root)
+                        root = root.right
+                    }
+                    // 恢复原状
+                    root = linkListReverse(root)
+                }
+            }
+        } else {
+            pre && pre(cur)
+            inOrder && inOrder(cur)
+        }
+        cur = cur.right
+    }
+    if (pos) {
+        let root = linkListReverse(head)
+        while (root) {
+            pos(root)
+            root = root.right
+        }
+        // 恢复原状
+        root = linkListReverse(root)
+    }
+}
+
+morris({
+    value: 1,
+    left: {
+        value: 2,
+        left: {
+            value: 4,
+            left: {
+                value: 8,
+            },
+            right: {
+                value: 9,
+            }
+        },
+        right: {
+            value: 5,
+            left: {
+                value: 10,
+            },
+            right: {
+                value: 11,
+            }
+        }
+    },
+    right: {
+        value: 3,
+        left: {
+            value: 6,
+            left: {
+                value: 12,
+            },
+            right: {
+                value: 13,
+            }
+        },
+        right: {
+            value: 7,
+            left: {
+                value: 14,
+            },
+            right: {
+                value: 15,
+            }
+        }
+    }
+}, { 
+    pre: (treeNode) => {
+        // console.log(treeNode.value)
+    },
+    inOrder: (treeNode) => {
+        // console.log(treeNode.value)
+    },
+    pos: (treeNode) => {
+        console.log(treeNode.value)
+    }
+})
+```
+
+### 使用Morris判断搜索二叉树
+
+对morris进行了一些改造，让其能够遇到false就中断，其实可以提供一个中断的函数，一调用就中断更合适
+
+```ts
+type TreeNode = {
+    left?: TreeNode
+    right?: TreeNode
+    value: number
+}
+
+type Options = {
+    pre?: (node: TreeNode) => boolean | void
+    inOrder?: (node: TreeNode) => boolean | void
+    pos?: (node: TreeNode) => boolean | void
+}
+
+function linkListReverse(node?: TreeNode) {
+    let pre: TreeNode|undefined = void 0
+    let next: TreeNode|undefined = void 0
+    while (node) {
+        next = node.right
+        node.right = pre
+        pre = node
+        node = next
+    }
+    return pre 
+}
+
+function morris(head: TreeNode, options?: Options) {
+    if (!head) {
+        return
+    }
+    const {
+        pre,
+        inOrder,
+        pos,
+    } = Object.assign({}, options)
+    let cur: TreeNode|undefined = head
+    let mostRight = null
+    while (cur) {
+        mostRight = cur.left // mostRight是cur左孩子
+        if (mostRight) {
+            
+            while (mostRight.right && mostRight.right !== cur) {
+                mostRight = mostRight.right
+            }
+            // mostRight变成cur最右节点
+            if (!mostRight.right) {
+                // 第一次来到cur
+                pre && pre(cur)
+                mostRight.right = cur
+                cur = cur.left
+                continue;
+            } else {
+                // 第二次来到cur，只有有左子树才会来第二次
+                // mostRight.right === cur
+                const result = inOrder && inOrder(cur)
+                if (result === false) return false
+                mostRight.right = void 0
+                if (pos) {
+                    // 后序遍历
+                    // 第二次来到cur时，逆序左子树的右边界
+                    let root = linkListReverse(cur.left)
+                    while (root) {
+                        pos(root)
+                        root = root.right
+                    }
+                    // 恢复原状
+                    root = linkListReverse(root)
+                }
+            }
+        } else {
+            pre && pre(cur)
+            const result = inOrder && inOrder(cur)
+            if (result === false) {
+                return false
+            }
+        }
+        cur = cur.right
+    }
+    if (pos) {
+        let root = linkListReverse(head)
+        while (root) {
+            pos(root)
+            root = root.right
+        }
+        // 恢复原状
+        root = linkListReverse(root)
+    }
+    return true
+}
+
+function isBST(head: TreeNode) {
+    if (!head) return true
+    let preValue = Number.MIN_SAFE_INTEGER
+    const result = morris(head, {
+        inOrder(treeNode, abort) {
+            if (treeNode.value <= preValue) {
+                return false
+            }
+            preValue = treeNode.value
+        }
+    })
+    return result
+}
+
+```
+
+所有关于树的遍历问题morris都是最优解
