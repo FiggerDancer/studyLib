@@ -5,6 +5,7 @@ import { copyCodePlugin } from 'vuepress-plugin-copy-code2'
 import { commentPlugin } from 'vuepress-plugin-comment2'
 // import { docsearchPlugin } from '@vuepress/plugin-docsearch'
 import { globSync } from 'glob'
+import { statSync } from 'node:fs'
 
 const getDirMds = (dirName: string) => {
     const pathList = globSync(`**/${dirName}/**.md`).map((filePath) => {
@@ -14,8 +15,22 @@ const getDirMds = (dirName: string) => {
     return pathList.reverse();
 }
 
+const getDirNames = () => {
+  const pathList = globSync([`./docs/**`]).filter((filePath) => {
+    return statSync(filePath).isDirectory()
+  }).map((filePath) => {
+    const tokens = filePath.split('/')
+    const name = tokens[tokens.length - 1]
+    return name
+  }).filter((name) => {
+    return name !== 'docs'
+  })
+  return pathList
+}
+
 const AlgorithmMds = getDirMds('algorithm')
 const LeetCodeMds = getDirMds('LeetCode')
+const EngineeringMds  = getDirMds('engineering')
 
 export default defineUserConfig({
     head: [
@@ -59,11 +74,16 @@ export default defineUserConfig({
             {
                 text: 'LeetCode',
                 link: LeetCodeMds[0],
+            },
+            {
+              text: '工程化',
+              link: EngineeringMds[0]
             }
         ],
         sidebar: { // 配置侧边栏部分
             "/algorithm/": AlgorithmMds,
-            '/LeetCode/': LeetCodeMds
+            '/LeetCode/': LeetCodeMds,
+            '/engineering/': EngineeringMds,
         },
     }),
     plugins: [
