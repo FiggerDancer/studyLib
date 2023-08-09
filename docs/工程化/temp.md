@@ -167,7 +167,7 @@ module.exports = {
         proxy: {
             '/api': {
                 // https://localhost:8080/api/users => https://api.github.com/api/users
-                target: 'htps://api.github.com',
+                target: 'https://api.github.com',
                 // https://localhost:8080/api/users => https://api.github.com/users
                 pathRewrite: {
                     '^/api': ''
