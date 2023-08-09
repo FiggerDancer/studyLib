@@ -72,14 +72,14 @@ module.exports = (source) => {
 }
 ```
 
-```js markdown-loader
+```js markdown-loader cjs
 module.exports = (source) => {
     const html = marked(source)
     return `module.exports = ${JSON.stringify(html)}`
 }
 ```
 
-```js markdown-loader
+```js markdown-loader esm
 module.exports = (source) => {
     const html = marked(source)
     return `export default ${JSON.stringify(html)}`
