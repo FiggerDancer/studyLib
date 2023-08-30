@@ -157,3 +157,105 @@ class EventEmitter {
 }
 
 ```
+
+## 无限累加的sum
+
+```js
+function sum(...rest) {
+    function func(...args) {
+        return sum(...rest, ...args)
+    }
+    func.valueOf = () => {
+        return rest.reduce((a, b) => a + b)
+    }
+    return func
+}
+
+```
+
+## queryParams
+
+```js
+function queryParams(href) {
+    const queryStr = href.replace(/\?([\s\S]+)/g, '')
+    const queryList = queryStr.split('&').map((str) => {
+        const [key, value] = str.split('=')
+        return {
+            key,
+            value,
+        }
+    })
+    return queryList.reduce((pre, cur) => {
+        pre[key] = value || true
+        return pre
+    }, {})
+}
+```
+
+## queryString
+
+```js
+function stringify (data) {
+  const pairs = Object.entries(data)
+  const qs = pairs.map(([k, v]) => {
+    let noValue = false
+    if (v === null || v === undefined || typeof v === 'object') {
+      noValue = true
+    }
+    return `${encodeURIComponent(k)}=${noValue ? '' : encodeURIComponent(v)}`
+  }).join('&')
+  return qs
+}
+```
+
+## JSONP
+
+```js
+function load(script) {
+    let resolve = _resolve
+    let reject = _reject
+    const promise = new Promise((_resolve, _reject) => {
+        const scriptTag = document.createElement('script')
+        scriptTag.src = script
+        function onLoadSuccess() {
+            resolve()
+            scriptTag.removeEventListener('load', onLoadSuccess)
+            scriptTag.removeEventListener('error', onLoadError)
+            document.head.appendChild(scriptTag)
+        }
+        function onLoadError(e) {
+            reject(e)
+            scriptTag.removeEventListener('load', onLoadSuccess)
+            scriptTag.removeEventListener('error', onLoadError)
+            scriptTag.parent.removeChild(scriptTag)
+        }
+        scriptTag.addEventListener('load', onLoadSuccess)
+        scriptTag.addEventListener('error', onLoadError)
+        document.body.appendChild(scriptTag)
+    })
+    return promise
+}
+
+function jsonp({ url, params }) {
+    return new Promise((resolve, reject) => {
+        // 一、为了避免全局污染，使用一个随机函数名
+        const cbFnName = `JSONP_PADDING_${Math.random().toString().slice(2)}`
+        // 二、默认 callback 函数为 cbFnName
+        const script = `${url}?${stringify({ callback: cbFnName, ...params })}`
+        
+        // 三、使用 onData 作为 cbFnName 回调函数，接收数据
+        window[cbFnName] = resolve
+
+        load(script).catch((e) => {
+            reject(e)
+        })
+    })
+}
+
+jsonp({
+    url: 'http://localhost:10010',
+    params: { id: 10000 },
+}).then((a) => {
+    console.log(a)
+})
+```
