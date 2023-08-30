@@ -259,3 +259,114 @@ jsonp({
     console.log(a)
 })
 ```
+
+## 模拟 instanceof
+
+```js
+function instanceOf(obj, func) {
+    if (obj == null || typeof obj !== 'object') {
+        return false
+    }
+    const proto = Object.getPrototypeOf(obj)
+    if (proto === func.prototype) {
+        return true
+    } 
+    if (proto === null) {
+        return false
+    }
+    return instanceOf(proto, func)
+}
+```
+
+## setTimeout 模拟
+
+```js
+function setTimeoutV2(fn, time){
+    let timer = setInterval(() => {
+        clearInterval(timer)
+        fn()
+    }, time)
+    return timer
+}
+```
+
+## setInterval 模拟
+
+```js
+function setIntervalV2(fn, time){
+    let timer
+    const myFunc = () => {
+        if (timer) {
+            clearTimeout(timer)
+        }
+        timer = setTimeout(() => {
+            clearTimeout(timer)
+            fn()
+            myFunc()
+        }, time)
+    }
+    myFunc()
+    return timer
+}
+```
+
+## 千分位格式化数字
+
+```js
+function formatThousand(num) {
+    const numStr = num.toString()
+    const n = numStr.length
+    let ans = ''
+    let r = n - 1
+    while (r >= 0) {
+        ans = numStr.substring(r - 3 + 1, r + 1) + (ans ? ',' : '') + ans
+        r -= 3
+    }
+    return ans
+}
+```
+
+## 手写new
+
+```js
+function newFn(func, ...args) {
+    // 1.以构造器的prototype属性为原型，创建新对象；
+    let child = Object.create(func.prototype);
+    // 2.将this和调用参数传给构造器执行
+    let result = Parent.apply(child, rest);
+    // 3.如果构造器没有手动返回对象，则返回第一步的对象
+    return typeof result  === 'object' ? result : child;
+}
+```
+
+## Object.create
+
+```js
+Object.create2 = function(proto, propertyObject) {
+    if (typeof proto !== 'function' && typeof proto !== 'object') {
+        return new Error('错误');
+    }
+    if (propertyObject === null) {
+        return new Error('错误');
+    }
+    function F() {}
+    F.prototype = proto.prototype;
+    const obj = new F();
+    if (typeof propertyObject !== 'undefined') {
+        Object.defineProperties(obj, propertyObject);
+    }
+    if (proto === null) {
+        obj.__proto__ = null;
+    }
+    return obj;
+}
+```
+
+## 判断数据类型
+
+```js
+function getType(value) {
+    if (typeof value !== 'object') return typeof value
+    return Object.prototype.toString.call(value)
+}
+```

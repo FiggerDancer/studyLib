@@ -44,3 +44,16 @@ function getWays(arr: number[], aim: number) {
 
 console.log(getWays1([1,5,3,2], 10), getWays([1,5,3,2], 10))
 
+function formatThousand(num) {
+    const numStr = num.toString()
+    const n = numStr.length
+    let ans = ''
+    let r = n - 1
+    while (r >= 0) {
+        ans = numStr.substring(r - 3 + 1, r + 1) + (ans ? ',' : '') + ans
+        r -= 3
+    }
+    return ans
+}
+
+console.log(formatThousand(10000000))
