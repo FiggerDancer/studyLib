@@ -43,3 +43,26 @@ function getWays(arr: number[], aim: number) {
 }
 
 console.log(getWays1([1,5,3,2], 10), getWays([1,5,3,2], 10))
+
+
+function removeBy(arr, by) {
+    let i = 0
+    let j = 0;
+    const n = arr.length
+    while (i < n) {
+        const item = arr[i]
+        if (!by(item)) {
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+            j++
+        }
+        i++
+    }
+    arr.length = j
+    return arr
+}
+
+console.log(removeBy([{
+    a: 1,
+}, {b:1}, {
+    a: 1,
+}, {c: 1}], (x) => {return x.a === 1}))

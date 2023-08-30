@@ -31,6 +31,7 @@ const getDirNames = () => {
 const AlgorithmMds = getDirMds('algorithm')
 const LeetCodeMds = getDirMds('LeetCode')
 const EngineeringMds  = getDirMds('engineering')
+const CodingMds = getDirMds('coding')
 
 export default defineUserConfig({
     head: [
@@ -78,12 +79,17 @@ export default defineUserConfig({
             {
               text: '工程化',
               link: EngineeringMds[0]
+            },
+            {
+              text: '手撕代码',
+              link: CodingMds[0]
             }
         ],
         sidebar: { // 配置侧边栏部分
             "/algorithm/": AlgorithmMds,
             '/LeetCode/': LeetCodeMds,
             '/engineering/': EngineeringMds,
+            '/coding/': CodingMds,
         },
     }),
     plugins: [
