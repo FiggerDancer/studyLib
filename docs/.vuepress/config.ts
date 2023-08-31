@@ -32,6 +32,7 @@ const AlgorithmMds = getDirMds('algorithm')
 const LeetCodeMds = getDirMds('LeetCode')
 const EngineeringMds  = getDirMds('engineering')
 const CodingMds = getDirMds('coding')
+const QuestionsMds = getDirMds('questions')
 
 export default defineUserConfig({
     head: [
@@ -81,8 +82,12 @@ export default defineUserConfig({
               link: EngineeringMds[0]
             },
             {
-              text: '手撕代码',
+              text: '代码',
               link: CodingMds[0]
+            },
+            {
+              text: '问题',
+              link: QuestionsMds[0]
             }
         ],
         sidebar: { // 配置侧边栏部分
@@ -90,6 +95,7 @@ export default defineUserConfig({
             '/LeetCode/': LeetCodeMds,
             '/engineering/': EngineeringMds,
             '/coding/': CodingMds,
+            '/questions/': QuestionsMds,
         },
     }),
     plugins: [
