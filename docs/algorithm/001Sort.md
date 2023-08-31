@@ -416,33 +416,48 @@ const resolve = (nums, target) => {
 为什么要取随机值，这个数学证明的，取一个随机值可以保证为O(nlogn)算法，否则是一个O(n^2)算法  
 
 ```js
-const quickSort = (arr, l = 0, r = arr.length - 1) => {
-  if (arr.length < 2) return
-  if (l < r) {
-    const random = Math.floor((r - l + 1) * Math.random())
-    const target = arr[random]
-    const [_l, _r] = partition(arr, target, l, r)
-    quickSort(arr, l, _l - 1)
-    quickSort(arr, _r + 1, r)
-  }
-  return arr
+/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var sortArray = function(nums) {
+    quickSort(nums, 0, nums.length - 1)
+    return nums
+};
+
+function quickSort(nums, l, r) {
+    if (l < r) {
+        const pos = randomPartition(nums, l, r)
+        quickSort(nums, l, pos - 1)
+        quickSort(nums, pos + 1, r)
+    }
 }
 
+function randomPartition(nums, l, r) {
+    const randomIndex = l + ((r - l) >> 1)
+    // 将随机索引移动到最后一位
+    swap(nums, randomIndex, r)
+    return partition(nums, l, r)
+}
 
-const partition = (nums, target, _l, _r) => {
-  let i = 0, l = _l, r = _r
-  while (i < r) {
-    if (nums[i] < target) {
-      [nums[i], nums[l]] = [nums[l], nums[i]]
-      l++
-    } else if (nums[i] > target) {
-      [nums[i], nums[r]] = [nums[r], nums[i]]
-      r--
+function partition(nums, l, r) {
+    const pivot = nums[r]
+    let low = l
+    let i = l
+    while (i < r) {
+        if (nums[i] <= pivot) {
+            swap(nums, i, low++)
+        }
+        i++
     }
-    i++
-  }
-  console.log(l, r)
-  return [l, r]
+    swap(nums, low, r)
+    return low
+}
+
+function swap(nums, i, j) {
+    const temp = nums[i]
+    nums[i] = nums[j]
+    nums[j] = temp
 }
 ```
 

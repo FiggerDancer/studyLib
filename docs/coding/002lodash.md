@@ -541,7 +541,7 @@ const intersection = (...list) => {
 
 ```js
 function isEmpty(obj) {
-    
+    return Reflect.ownKeys(target).length === 0
 }
 
 ```
