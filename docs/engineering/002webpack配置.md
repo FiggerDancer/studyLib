@@ -4,6 +4,19 @@
 
 ### loader
 
+#### loader调优先级
+
+前置知识：
+
+1. loader调用有优先级,可以通过enforce指定优先级，并且可以通过！符号在引入模块的时候定义是否要跳过某一种优先级的loader
+
+webpack.js.org
+2. loader的调用有inline的方式，并且可以结合上面说的！符号指定跳过某些loader
+
+webpack.js.org
+3. pitch阶段的调用在normal之前，并且顺序和normal相反。详细过程见文章总结
+4. pitch阶段某一个loader返回了值的话，就直接中断整个流程，把pitch的返回值作为本次文件的loader结果继续编译。比如上述的style-loader返回了对原来文件./xxx/less的引用，指定了使用css-loader less-loader loader继续加载，并且用了两个!!去跳过了配置文件中的所有loader防止无限递归。这里使用picth起到了类似**虚拟节点**的作用
+
 #### js、ts、jsx、tsx
 
 swc、esbuild、babel
@@ -38,7 +51,7 @@ markdown-loader
 
 thread-loader、thread-loader warm机制
 
-#### 写一个loader
+#### [写一个loader](https://juejin.cn/book/7115598540721618944/section/7119035404715556879?enter_from=course_center&utm_source=course_center)
 
 资源加载，从资源输入到输出，是一个管道机制
 
@@ -63,6 +76,57 @@ module.exports = (source) => {
     const html = marked(source)
     return `export default ${JSON.stringify(html)}`
 }
+```
+
+#### Loader编写说明
+
+Loader 接收三个参数，分别为：
+
+source：资源输入，对于第一个执行的 Loader 为资源文件的内容；后续执行的 Loader 则为前一个 Loader 的执行结果，可能是字符串，也可能是代码的 AST 结构；  
+sourceMap: 可选参数，代码的 sourcemap 结构；  
+data: 可选参数，其它需要在 Loader 链中传递的信息，比如 posthtml/posthtml-loader 就会通过这个参数传递额外的 AST 对象。  
+
+需要注意，Loader 中执行的各种资源内容转译操作通常都是 CPU 密集型 —— 这放在 JavaScript 单线程架构下可能导致性能问题；又或者异步 Loader 会挂起后续的加载器队列直到异步 Loader 触发回调，稍微不注意就可能导致整个加载器链条的执行时间过长。
+
+为此，Webpack 默认会缓存 Loader 的执行结果直到资源或资源依赖发生变化，开发者需要对此有个基本的理解，必要时可以通过 this.cachable 显式声明不作缓存：
+
+提示：也可以在 Loader 代码中插入 debugger 语句，配合 ndb 工具启动调试模式。
+
+代码逻辑:
+
+1. 通过 this.getOptions 接口获取 Loader 配置对象；  
+2. 使用 schema-utils 的 validate 接口校验 Loader 配置是否符合预期，配置 Schema 定义在 src/options.json 文件；  
+3. 返回经过修改的内容。
+
+##### Loader 常用接口
+
++ fs：Compilation 对象的 inputFileSystem 属性，我们可以通过这个对象获取更多资源文件的内容；  
++ resource：当前文件路径；  
++ resourceQuery：文件请求参数，例如 import "./a?foo=bar" 的 resourceQuery 值为 ?foo=bar；  
++ callback：可用于返回多个结果；  
++ getOptions：用于获取当前 Loader 的配置对象；  
++ async：用于声明这是一个异步 Loader，开发者需要通过 async 接口返回的 callback 函数传递处理结果；  
++ emitWarning：添加警告；  
++ emitError：添加错误信息，注意这不会中断 Webpack 运行；  
++ emitFile：用于直接写出一个产物文件，例如 file-loader 依赖该接口写出 Chunk 之外的产物；  
++ addDependency：将 dep 文件添加为编译依赖，当 dep 文件内容发生变化时，会触发当前文件的重新构建；  
+
+#### Loader返回多个结果
+
+通过callback
+
+```js
+this.callback(
+    // 异常信息，Loader 正常运行时传递 null 值即可
+    err: Error | null,
+    // 转译结果
+    content: string | Buffer,
+    // 源码的 sourcemap 信息
+    sourceMap?: SourceMap,
+    // 任意需要在 Loader 间传递的值
+    // 经常用来传递 ast 对象，避免重复解析
+    data?: any
+);
 ```
 
 ### plugins
@@ -425,6 +489,39 @@ webpack默认开启
 
 json也支持，尽量使用支持esm的包，因为只有esm支持摇树
 
+```js
+// webpack.config.js
+module.exports = {
+  mode: "production",
+  optimization: {
+    usedExports: true,
+  },
+};
+```
+
+#### 使用 Scope Hoisting 合并模块
+
+```js
+const ModuleConcatenationPlugin = require('webpack/lib/optimize/ModuleConcatenationPlugin');
+
+module.exports = {
+    // 方法1： 将 `mode` 设置为 production，即可开启
+    mode: "production",
+    // 方法2： 将 `optimization.concatenateModules` 设置为 true
+    optimization: {
+        concatenateModules: true,
+        usedExports: true,
+        providedExports: true,
+    },
+    // 方法3： 直接使用 `ModuleConcatenationPlugin` 插件
+    plugins: [new ModuleConcatenationPlugin()]
+};
+```
+
+#### external cdn
+
+external 使用cdn引入
+
 #### polyfill core-js
 
 在使用babel的时候一般我们会使用 @babel/plugin-transform-runtime 并配置 corejs为 3  useBuiltIn已经被废弃了，现在babel会默认使用usage
@@ -457,13 +554,13 @@ Code Splitting
 
 1. runtime 单独抽离
 
-webpack(或其他构建工具) 运行时代码不容易变更，需要单独抽离出来，比如 webpack.runtime.js。由于其体积小，必要时可注入 index.html 中，减少 HTTP 请求数，优化关键请求路径
+webpack(或其他构建工具) 运行时代码不容易变更，需要单独抽离出来，比如 webpack.runtime.js。由于其体积小，必要时可注入 index.html 中，减少 HTTP 请求数，优化关键请求路径。有时注入到文件里会影响文件的hash，导致文件缓存失效
 
 ```js
 {
     splitChunks: {
         // 单独抽离运行时
-        runtime: true,
+        runtimeChunk: true,
         cacheGroups: {
 
         }
@@ -608,6 +705,26 @@ React(Vue) 运行时代码不容易变更，且每个组件都会依赖它，可
         },
     },
 }
+```
+
+#### 监控产物体积
+
+```js
+module.exports = {
+  // ...
+  performance: {    
+    // 设置所有产物体积阈值
+    maxAssetSize: 172 * 1024,
+    // 设置 entry 产物体积阈值
+    maxEntrypointSize: 244 * 1024,
+    // 报错方式，支持 `error` | `warning` | false
+    hints: "error",
+    // 过滤需要监控的文件类型
+    assetFilter: function (assetFilename) {
+      return assetFilename.endsWith(".js");
+    },
+  },
+};
 ```
 
 ## 缓存策略
