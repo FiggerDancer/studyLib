@@ -1032,3 +1032,7 @@ hydrateRoot 函数允许你在先前由 react-dom/server 生成的浏览器 HTML
 ```js
 const root = hydrateRoot(domNode, reactNode, options?)
 ```
+
+## Vue和React的区别（作业帮）
+
+## React为什么需要Fiber，是为了解决什么问题的（作业帮）
