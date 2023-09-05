@@ -313,3 +313,91 @@ DOM -> SVG -> Canvas -> JPEG/PNG
 首先将url解析变成dns，通过dns找到对应的域名，通过域名获取ip。第二步，就是建立TCP协议，服务器把html、css、js等资源返回给客户端。第三步，客户端拿到html资源后开始着手构建DOM树，CSSOM树，一般js使用defer或者放在body底部最后被加载，js加载过程则是采用了解释器+编译器的模式，先通过词法解析和语法解析将js变成ast tokens,然后进一步转化为字节码，再通过页面对这些js使用的程度，将常用的js作为机器码编译存起来，不常用的丢掉。第四步，将同步任务置入执行栈中调用，将异步任务放到事件队列中，等候调用。第五步，有头，调用事件队列头，每次执行完宏任务，就将微任务队列清空。依次循环。对于不同事件鼠标键盘，不同浏览器也有不同的优先级设计。最后用户关闭。
 
 ## 怎么做点谈窗外关闭弹窗的功能 (百度)
+
+最简单的方式就是利用冒泡机制，在body上监听点击事件，在窗口上加阻止冒泡。不过我更推崇vueuse的clickOutSide的实现方式，毕竟阻止冒泡还是有些不太好的。该方案采用了其实是pointerdown和pointerup两个事件来完成一次click，添加了一个shouldListen，这个变量用于记录是否被忽略元素（一般是弹窗）是否事件链上，只要不在事件链上，那么就可以正常执行。同时对于iframe元素则采用blur失焦策略来执行关闭窗口。
+
+```js
+/**
+ * Listen for clicks outside of an element.
+ *
+ * @see https://vueuse.org/onClickOutside
+ * @param target
+ * @param handler
+ * @param options
+ */
+export function onClickOutside<T extends OnClickOutsideOptions>(
+  target: MaybeElementRef,
+  handler: OnClickOutsideHandler<{ detectIframe: T['detectIframe'] }>,
+  options: T = {} as T,
+) {
+  const { window = defaultWindow, ignore = [], capture = true, detectIframe = false } = options
+
+  if (!window)
+    return
+
+  let shouldListen = true
+
+  let fallback: number
+
+  // 判断事件路径上是否存在忽略的元素
+  const shouldIgnore = (event: PointerEvent) => {
+    return ignore.some((target) => {
+      if (typeof target === 'string') {
+        return Array.from(window.document.querySelectorAll(target))
+          .some(el => el === event.target || event.composedPath().includes(el))
+      }
+      else {
+        const el = unrefElement(target)
+        return el && (event.target === el || event.composedPath().includes(el))
+      }
+    })
+  }
+
+  const listener = (event: PointerEvent) => {
+    window.clearTimeout(fallback)
+
+    const el = unrefElement(target)
+
+    if (!el || el === event.target || event.composedPath().includes(el))
+      return
+
+    if (event.detail === 0)
+      shouldListen = !shouldIgnore(event)
+
+    if (!shouldListen) {
+      shouldListen = true
+      return
+    }
+
+    handler(event)
+  }
+
+  const cleanup = [
+    useEventListener(window, 'click', listener, { passive: true, capture }),
+    useEventListener(window, 'pointerdown', (e) => {
+      const el = unrefElement(target)
+      if (el)
+        shouldListen = !e.composedPath().includes(el) && !shouldIgnore(e)
+    }, { passive: true }),
+    useEventListener(window, 'pointerup', (e) => {
+      if (e.button === 0) {
+        const path = e.composedPath()
+        e.composedPath = () => path
+        fallback = window.setTimeout(() => listener(e), 50)
+      }
+    }, { passive: true }),
+    detectIframe && useEventListener(window, 'blur', (event) => {
+      const el = unrefElement(target)
+      if (
+        window.document.activeElement?.tagName === 'IFRAME'
+        && !el?.contains(window.document.activeElement)
+      )
+        handler(event as any)
+    }),
+  ].filter(Boolean) as Fn[]
+
+  const stop = () => cleanup.forEach(fn => fn())
+
+  return stop
+}
+```

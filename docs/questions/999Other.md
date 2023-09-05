@@ -20,8 +20,28 @@
 
 ## 用过哪些设计模式？装饰器模式你是怎么用的？(作业帮)
 
+单例模式，比如SDK本身就是一个单例具有eventEmitter；工厂模式，比如SDK中Recorder，通过getRecorder获得，然后将Recorder注册到LRUCache中缓存；发布订阅模式，eventEmitter；享元模式，其实React的DOM渲染我认为采用的就是一种享元模式，因为同一个位置相同组件是不会销毁重新生成的，而是使用之前的。防抖函数装饰器。
+
 ## 场景：一个列表页，从某一页点进详情页了，想要返回的时候能回到上一次看的位置(小米)
+
+```js
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  },
+})
+```
 
 ## 情景：一个分页列表，连续点击翻页，会出现页面数据错乱的问题（比如第二页展示了第三页的数据），可能是因为什么原因导致的。怎么解决（高涂）
 
+1. 分页数据的话，这个数据后台是否是缓存的，会不会是刚刚更新过，有没有楼层机制
+2. 是不是没做防抖，导致多次调到下一页
+3. 是不是没写key
+
 ## TS：泛型怎么理解、用在哪了都、一些内置API pick，readonly有没有用到（百度）
+
+泛型是就是对类型的参数化，比如Map我就可以给他一个泛型，比如key必须是String,value必须是数字，数组我也可以给他一个约束，包括字面量对象等，我还可以给一个默认类型=any，比如我发送请求，希望结果如何如何。pick从属性中提取某些属性，readonly将所有属性设为可读,还有Required，infer用来推断，Omit等等。自己也写了些工具，ValueOf,Merge,Copy等

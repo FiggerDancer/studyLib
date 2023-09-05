@@ -941,7 +941,7 @@ webpack.js.org
 
 webpack.js.org
 3. pitch阶段的调用在normal之前，并且顺序和normal相反。详细过程见文章总结
-4. pitch阶段某一个loader返回了值的话，就直接中断整个流程，把pitch的返回值作为本次文件的loader结果继续编译。比如上述的style-loader返回了对原来文件./xxx/less的引用，指定了使用css-loader less-loader loader继续加载，并且用了两个!!去跳过了配置文件中的所有loader防止无限递归。这里使用picth起到了类似**虚拟节点**的作用
+4. pitch阶段某一个loader返回了值的话，就直接中断整个流程，把pitch的返回值作为本次文件的loader结果继续编译。比如上述的style-loader返回了对原来文件./xxx/less的引用，指定了使用css-loader less-loader loader继续加载，并且用了两个!!去跳过了配置文件中的所有loader防止无限递归。这里使用pitch起到了类似**虚拟节点**的作用
 
 :::
 
