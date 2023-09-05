@@ -1036,3 +1036,5 @@ const root = hydrateRoot(domNode, reactNode, options?)
 ## Vue和React的区别（作业帮）
 
 ## React为什么需要Fiber，是为了解决什么问题的（作业帮）
+
+当React更新一个节点时，其下属的所有的节点也要一起patch，哪怕最终这些子节点可能只有几个发生了改变，但是diff是少不了的，这也就意味当一次patch的节点数量足够多时，因为JS的单线程，且执行js和渲染时互斥交替进行的，就会阻塞浏览器渲染线程，给用户以明显卡顿的感觉。所以React引入了Fiber，在我的了解中，React是将虚拟DOM树拍平成一个链表，然后通过空闲时间帧进行diff比较，将长任务变成多个短任务
