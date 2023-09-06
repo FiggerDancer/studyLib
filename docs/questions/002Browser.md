@@ -65,7 +65,7 @@ const server = http.createServer((req, res) => {
 server.listen(10010, () => console.log('Done'))
 ```
 
-[实现JSONP](http://localhost:8080/studyLib/coding/003coding.html#jsonp)
+[实现JSONP](studyLib/coding/003coding.html#jsonp)
 
 ## 你都知道哪些Observer，能用来干嘛
 
