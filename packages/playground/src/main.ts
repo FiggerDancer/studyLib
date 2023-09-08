@@ -7,53 +7,34 @@ createApp(App)
     .use(router)
     .mount('#app');
 
-function getWays1(arr: number[], aim: number) {
-        const n = arr.length
-        const dp = new Array(n + 1).fill(0).map(() => new Array(aim + 1).fill(0))
-        dp[n][0] = 1
-        for (let index = n - 1; index >= 0; index--) {
-            for (let rest = 0; rest <= aim; rest++) {
-                let ways = 0
-                for (let zhang = 0; arr[index] * zhang <= rest; zhang++) {
-                    ways += dp[index + 1][rest - arr[index] * zhang]
-                }
-                dp[index][rest] = ways
+function throttle(time) {
+    return (target, name, descriptor) => {
+        const oldValue = descriptor.value
+        let timer
+        descriptor.value = function(...rest: any[]) {
+            if (timer) {
+                return
             }
+            timer = setTimeout(() => {
+                oldValue.call(this, ...rest)
+                timer = null
+            }, time)
         }
-        return dp[0][aim]
+        return descriptor
     }
-
-
-function getWays(arr: number[], aim: number) {
-    const n = arr.length
-    const dp = new Array(n + 1).fill(0).map(() => new Array(aim + 1).fill(0))
-    dp[n][0] = 1
-    for (let index = n - 1; index >= 0; index--) {
-        for (let rest = 0; rest <= aim; rest++) {
-            // 这一行前面的值，也是通过下面的值进行计算的也就说，这些东西已经算过一遍了
-            // 这里可以直接通过该值下面的值和左边的上个值相加取得
-            dp[index][rest] = dp[index + 1][rest]
-            if (rest - arr[index] >= 0) {
-                dp[index][rest] += dp[index][rest - arr[index]]
-            }
-        }
-    }
-    console.log(dp)
-    return dp[0][aim]
 }
 
-console.log(getWays1([1,5,3,2], 10), getWays([1,5,3,2], 10))
 
-function formatThousand(num) {
-    const numStr = num.toString()
-    const n = numStr.length
-    let ans = ''
-    let r = n - 1
-    while (r >= 0) {
-        ans = numStr.substring(r - 3 + 1, r + 1) + (ans ? ',' : '') + ans
-        r -= 3
+class ABC {
+    @throttle(500)
+    say() {
+        console.log('2334545')
     }
-    return ans
 }
 
-console.log(formatThousand(10000000))
+const a = new ABC()
+
+a.say()
+a.say()
+
+a.say()
