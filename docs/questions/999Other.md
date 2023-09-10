@@ -121,3 +121,8 @@ const router = createRouter({
 ## TS：泛型怎么理解、用在哪了都、一些内置API pick，readonly有没有用到（百度）
 
 泛型是就是对类型的参数化，比如Map我就可以给他一个泛型，比如key必须是String,value必须是数字，数组我也可以给他一个约束，包括字面量对象等，我还可以给一个默认类型=any，比如我发送请求，希望结果如何如何。pick从属性中提取某些属性，readonly将所有属性设为可读,还有Required，infer用来推断，Omit等等。自己也写了些工具，ValueOf,Merge,Copy等
+
+## JSBridge如何实现和客户端通信的？（美团）
+
+客户端注入了一段脚本，脚本中存在callHandler、_fetchQueue、dispatch这三个方法，当调用callHandler时注册一个唯一id的回调函数，并且将参数信息，额外存储起来，额外存储的信息可以通过_fetchQueue方法获取，建立一个iframe，客户端通过拦截url来实现对调用事件的捕获，然后调用webviewJsBridge上的_fetchQueue方法获取参数值，调用dispatch方法传递callbackId
+及data，调用完成后，从缓存中删除该callbackId，从而完成通信
