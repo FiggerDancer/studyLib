@@ -33,6 +33,8 @@ const LeetCodeMds = getDirMds('LeetCode')
 const EngineeringMds  = getDirMds('engineering')
 const CodingMds = getDirMds('coding')
 const QuestionsMds = getDirMds('questions')
+const VueMds = getDirMds('framework/vue')
+const ReactMds = getDirMds('framework/react')
 
 export default defineUserConfig({
     head: [
@@ -82,12 +84,30 @@ export default defineUserConfig({
               link: EngineeringMds[0]
             },
             {
-              text: '代码',
-              link: CodingMds[0]
+              text: '框架',
+              children: [
+                {
+                  text: 'Vue',
+                  link: VueMds[0],
+                },
+                {
+                  text: 'React',
+                  link: ReactMds[0],
+                }
+              ]
             },
             {
-              text: '问题',
-              link: QuestionsMds[0]
+              text: '面试',
+              children: [
+                {
+                  text: '问题',
+                  link: QuestionsMds[0]
+                },
+                {
+                  text: '代码',
+                  link: CodingMds[0]
+                },
+              ]
             }
         ],
         sidebar: { // 配置侧边栏部分
@@ -96,6 +116,8 @@ export default defineUserConfig({
             '/engineering/': EngineeringMds,
             '/coding/': CodingMds,
             '/questions/': QuestionsMds,
+            '/framework/vue/': VueMds,
+            '/framework/react/': ReactMds
         },
     }),
     plugins: [
