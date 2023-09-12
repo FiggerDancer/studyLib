@@ -545,3 +545,21 @@ function isEmpty(obj) {
 }
 
 ```
+
+## 柯里化
+
+```js
+function curry(fn, len = fn.length) {
+    return _curry.call(this, fn, len)
+}
+
+function _curry(fn, len, ...rest) {
+    return function(...args) {
+        const newArgs = [...rest, ...args]
+        if (newArgs.length >= len) {
+            return fn.call(this, ...newArgs)
+        }
+        return _curry(fn, len, ...newArgs)
+    }
+}
+```
