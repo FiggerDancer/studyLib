@@ -54,3 +54,52 @@ HTTP是一个基于TCP/IP通信协议来传递数据的应用级协议。主要�
 ## React 中 setState 什么时候是同步的，什么时候是异步的？（微医）
 
 setState
+
+## 5种HTTP数据传输方式?
+
+### 1. url param
+
+```plain
+http://guang.zxg/person/1111
+```
+
+### 2. query
+
+```js
+const queryString = require('query-string');
+
+queryString.stringify({
+  name: '光',
+  age: 20
+});
+
+// ?name=%E5%85%89&age=20
+```
+
+### 3. form-urlencoded
+
+直接用 form 表单提交数据就是这种，它和 query 字符串的方式的区别只是放在了 body 里，然后指定下 content-type 是 application/x-www-form-urlencoded
+
+因为内容也是 query 字符串，所以也要用 encodeURIComponent 的 api 或者 query-string 库处理下。
+
+这种格式也很容易理解，get 是把数据拼成 query 字符串放在 url 后面，于是表单的 post 提交方式的时候就直接用相同的方式把数据放在了 body 里。
+
+通过 & 分隔的 form-urlencoded 的方式需要对内容做 url encode，如果传递大量的数据，比如上传文件的时候就不是很合适了，因为文件 encode 一遍的话太慢了，这时候就可以用 form-data。
+
+### 4. form-data
+
+form data 不再是通过 & 分隔数据，而是用 --------- + 一串数字做为 boundary 分隔符。因为不是 url 的方式了，自然也不用再做 url encode。
+
+form-data 需要指定 content type 为 multipart/form-data，然后指定 boundary 也就是分割线。
+
+body 里面就是用 boundary 分隔符分割的内容。
+
+很明显，这种方式适合传输文件，而且可以传输多个文件。
+
+但是毕竟多了一些只是用来分隔的 boundary，所以请求体会增大。
+
+### 5. json
+
+form-urlencoded 需要对内容做 url encode，而 form data 则需要加很长的 boundary，两种方式都有一些缺点。如果只是传输 json 数据的话，不需要用这两种。
+
+可以直接指定content type 为 application/json 就行：

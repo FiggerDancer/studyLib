@@ -35,6 +35,7 @@ const CodingMds = getDirMds('coding')
 const QuestionsMds = getDirMds('questions')
 const VueMds = getDirMds('framework/vue')
 const ReactMds = getDirMds('framework/react')
+const NestJsMds = getDirMds('framework/nestjs')
 
 export default defineUserConfig({
     head: [
@@ -93,6 +94,10 @@ export default defineUserConfig({
                 {
                   text: 'React',
                   link: ReactMds[0],
+                },
+                {
+                  text: 'NestJS',
+                  link: NestJsMds[0]
                 }
               ]
             },
@@ -117,7 +122,8 @@ export default defineUserConfig({
             '/coding/': CodingMds,
             '/questions/': QuestionsMds,
             '/framework/vue/': VueMds,
-            '/framework/react/': ReactMds
+            '/framework/react/': ReactMds,
+            '/framework/nestjs': NestJsMds
         },
     }),
     plugins: [
