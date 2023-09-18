@@ -1,4 +1,6 @@
-# IOC 解决了哪些痛点
+# NestJS
+
+## IOC 解决了哪些痛点
 
 后端系统中会有很多对象
 
@@ -42,3 +44,47 @@ nest 还加了模块机制，可以把不同业务的 controller、service 等�
 当 import 别的模块后，那个模块 exports 的 provider 就可以在当前模块注入了。
 
 比如 OtherModule 里有 XxxService、YyyService 这两个 provider，导出了 XxxService。
+
+## 多种provider
+
+1. 直接使用类名，写起来最简洁，最常用的。useClass 的方式由 IOC 容器负责实例化
+2. `provide`使用字符串，`Inject`需要传参
+3. 使用`useValue`可以传一个值
+4. 使用`useFactory`可以异步函数，可以传参,可以用来动态创建数据库连接对象
+5. 使用`useExisting`可以指定别名
+
+```ts
+@Module({
+    providers: [
+        AppService,
+        {
+            provide: 'app_service',
+            useClass: AppService,
+        },
+        {
+            provide: 'person',
+            useValue: {
+                name: 'aaa',
+                age: 20,
+            }
+        },
+        {
+            provide: 'person2',
+            useFactory() {
+                await new Promise((resolve) => setTimeout(resolve, 3000))
+                return {
+                    name: 'bbb',
+                    desc: 'cccc'
+                }
+            }
+        },
+        {
+            // 指定别名
+            provide: 'person3',
+            useExisting: 'person2'
+        }
+    ]
+})
+```
+
+一般情况下，provider 是通过 @Injectable 声明，然后在 @Module 的 providers 数组里注册的 class。
