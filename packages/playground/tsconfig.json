@@ -5,6 +5,8 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "moduleResolution": "Node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "strict": true,
     "jsx": "preserve",
     "sourceMap": true,
