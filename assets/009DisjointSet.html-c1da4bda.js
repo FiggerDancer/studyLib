@@ -1,0 +1,1 @@
+const t=JSON.parse('{"key":"v-97fa1e1a","path":"/algorithm/009DisjointSet.html","title":"并查集","lang":"zh-CN","frontmatter":{},"headers":[{"level":2,"title":"岛问题","slug":"岛问题","link":"#岛问题","children":[{"level":3,"title":"【进阶】","slug":"【进阶】","link":"#【进阶】","children":[]}]}],"git":{"updatedTime":1691077580000},"filePathRelative":"algorithm/009DisjointSet.md"}');export{t as data};

@@ -1,0 +1,1 @@
+const e=JSON.parse('{"key":"v-3943d425","path":"/algorithm/005TrieTree.html","title":"前缀树","lang":"zh-CN","frontmatter":{},"headers":[],"git":{"updatedTime":1690815939000},"filePathRelative":"algorithm/005TrieTree.md"}');export{e as data};
