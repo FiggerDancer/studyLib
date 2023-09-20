@@ -263,3 +263,65 @@ async function bootstrap() {
 }
 bootstrap();
 ```
+
+## 合并装饰器
+
+applyDecorators
+
+```ts
+import { applyDecorators, Get, UseGuards } from '@nestjs/common';
+import { Aaa } from './aaa.decorator';
+import { AaaGuard } from './aaa.guard';
+
+export function Bbb(path, role) {
+  return applyDecorators(
+    Get(path),
+    Aaa(role),
+    UseGuards(AaaGuard)
+  )
+}
+```
+
+## 自定义装饰器
+
+```ts
+export const MyQuery = createParamDecorator(
+    (key: string, ctx: ExecutionContext) => {
+        const request: Request = ctx.switchToHttp().getRequest()
+        return request.query[key]
+    }
+)
+```
+
+## Metadata和Reflector
+
+1. Reflect.defineMetadata
+2. Reflect.getMetadata
+
+现在NestJS中是依赖了ts的emitDecoratorMetadata编译选项
+
+## 创建循环依赖
+
+可以通过forwardRef
+
+```ts
+import { forwardRef, Module } from '@nestjs/common'
+import { BbbModule } from 'src/bbb/bbb.module'
+
+@Module({
+    imports: [
+        forwardRef(() => BbbModule)
+    ]
+})
+```
+
+```ts
+import { forwardRef, Module } from '@nestjs/common'
+import { AaaModule } from 'src/aaa/aaa.module'
+
+@Module({
+    imports: [
+        forwardRef(() => AaaModule)
+    ]
+})
+```

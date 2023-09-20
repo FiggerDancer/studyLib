@@ -200,7 +200,7 @@ app.useGlobalGuards(new RolesGuard())
 
 Guard可以抽离路由的访问控制逻辑，但是不能对请求、响应做修改，这种逻辑可以使用Interceptor
 
-## Interceptor
+### Interceptor
 
 Interceptor是拦截器，可以在目标Controller方法前后加入一些逻辑
 
@@ -347,4 +347,3 @@ AOP 则是把通用逻辑抽离出来，通过切面的方式添加到某个地�
 Nest 的 Middleware、Guard、Interceptor、Pipe、ExceptionFilter 都是 AOP 思想的实现，只不过是不同位置的切面，它们都可以灵活的作用在某个路由或者全部路由，这就是 AOP 的优势。
 
 Nest 就是通过这种 AOP 的架构方式，实现了松耦合、易于维护和扩展的架构。
-
